@@ -45,9 +45,9 @@ class Shape {
 
 const App = () => {
   const [shapes, setShapes] = useState([
-    new Shape("id-1", 100, 100, false),
-    new Shape("id-2", 150, 150, false),
-    new Shape("id-3", 200, 200, false)
+    new Shape("id-1", 312, 326, false),
+    new Shape("id-2", 253, 123, false),
+    new Shape("id-3", 121, 267, false)
   ]);
 
   const [viewportCoordinates, setViewportCoordinates] = useState({

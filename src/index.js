@@ -34,12 +34,22 @@ class ControlMode {
   }
 }
 
+class Shape {
+  constructor(id, x, y, dragging) {
+    this.id = id;
+    this.x = x;
+    this.y = y;
+    this.dragging = dragging;
+  }
+}
+
 const App = () => {
-  const [boxCoordinates, setBoxCoordinates] = useState({
-    x: 50,
-    y: 50
-  });
-  const [boxDragging, setBoxDragging] = useState(false);
+  const [shapes, setShapes] = useState([
+    new Shape("id-1", 100, 100, false),
+    new Shape("id-2", 150, 150, false),
+    new Shape("id-3", 200, 200, false)
+  ]);
+
   const [viewportCoordinates, setViewportCoordinates] = useState({
     x: 0,
     y: 0
@@ -144,7 +154,6 @@ const App = () => {
 
   useEffect(() => {
     if (canvasPanEnabled) {
-      console.log("register pan");
       const handler = (event) => {
         setViewportCoordinates((state) => ({
           x: state.x + event.movementX,
@@ -195,29 +204,47 @@ const App = () => {
       </div>
       <Stage width={window.innerWidth - 10} height={window.innerHeight - 10}>
         <Layer>
-          <Group
-            x={boxCoordinates.x + viewportCoordinates.x}
-            y={boxCoordinates.y + viewportCoordinates.y}
-            draggable
-            onDragStart={() => {
-              setBoxDragging(true);
-            }}
-            onDragEnd={(event) => {
-              setBoxDragging(false);
-              setBoxCoordinates({
-                x: event.target.x() - viewportCoordinates.x,
-                y: event.target.y() - viewportCoordinates.y
-              });
-            }}
-          >
-            <Rect width={100} height={100} fill="green" />
-            <Text
-              x={8}
-              y={40}
-              text="Draggable Text"
-              fill={boxDragging ? "green" : "black"}
-            />
-          </Group>
+          {shapes.map((shape) => (
+            <Group
+              key={shape.id}
+              x={shape.x + viewportCoordinates.x}
+              y={shape.y + viewportCoordinates.y}
+              draggable
+              onDragStart={() => {
+                setShapes((shapes) =>
+                  shapes.map((el) =>
+                    el.id === shape.id ? { ...el, dragging: true } : el
+                  )
+                );
+              }}
+              onDragEnd={(event) => {
+                setShapes((shapes) =>
+                  shapes.map((el) =>
+                    el.id === shape.id
+                      ? {
+                          ...el,
+                          dragging: false,
+                          x: event.target.x() - viewportCoordinates.x,
+                          y: event.target.y() - viewportCoordinates.y
+                        }
+                      : el
+                  )
+                );
+              }}
+            >
+              <Rect
+                width={100}
+                height={100}
+                fill={shape.dragging ? "black" : "green"}
+              />
+              <Text
+                x={8}
+                y={40}
+                text="Draggable Text"
+                fill={shape.dragging ? "green" : "black"}
+              />
+            </Group>
+          ))}
         </Layer>
       </Stage>
     </>

@@ -2,29 +2,6 @@ import React, { useState, useEffect } from "react";
 import { render } from "react-dom";
 import { Stage, Layer, Text, Group, Rect } from "react-konva";
 
-class MouseState {
-  static Up = new MouseState("up");
-  static Down = new MouseState("down");
-  static Hold = new MouseState("hold");
-
-  constructor(name) {
-    this.name = name;
-  }
-}
-
-class MouseStateHistory {
-  static Initial = new MouseStateHistory(null, MouseState.Up);
-
-  constructor(previous, current) {
-    this.previous = previous;
-    this.current = current;
-  }
-
-  enqueue(current) {
-    return new MouseStateHistory(this.current, current);
-  }
-}
-
 class ControlMode {
   static Mouse = new ControlMode("mouse");
   static Trackpad = new ControlMode("trackpad");
@@ -43,6 +20,86 @@ class Shape {
   }
 }
 
+class KeyState {
+  static Up = new KeyState("up");
+  static Down = new KeyState("down");
+  static Hold = new KeyState("hold");
+
+  constructor(name) {
+    this.name = name;
+  }
+}
+
+class KeyStateHistory {
+  static Initial = new KeyStateHistory(null, KeyState.Up);
+
+  constructor(previous, current) {
+    this.previous = previous;
+    this.current = current;
+  }
+
+  enqueue(current) {
+    return new KeyStateHistory(this.current, current);
+  }
+}
+
+class Key {
+  static MouseLeft = new Key("mousedown", "mouseup", 0);
+  static MouseRight = new Key("mousedown", "mouseup", 2);
+
+  constructor(downEventListenerType, upEventListenerType, buttonCode) {
+    this.downEventListenerType = downEventListenerType;
+    this.upEventListenerType = upEventListenerType;
+    this.buttonCode = buttonCode;
+  }
+}
+
+function keyState(key) {
+  const [stateHistory, setStateHistory] = useState(KeyStateHistory.Initial);
+  const holdIntervalRef = React.useRef(null);
+
+  const startHoldIntervalCounter = () => {
+    if (holdIntervalRef.current) return;
+    holdIntervalRef.current = setInterval(() => {
+      setStateHistory((state) => state.enqueue(KeyState.Hold));
+    }, 100);
+  };
+
+  const stopHoldIntervalCounter = () => {
+    if (holdIntervalRef.current) {
+      clearInterval(holdIntervalRef.current);
+      holdIntervalRef.current = null;
+    }
+  };
+
+  useEffect(() => {
+    const handler = (event) => {
+      if (event.button === key.buttonCode) {
+        setStateHistory((state) => state.enqueue(KeyState.Down));
+        startHoldIntervalCounter();
+      }
+    };
+    //TODO customize event listener target
+    document.addEventListener(key.downEventListenerType, handler);
+    return () =>
+      document.removeEventListener(key.downEventListenerType, handler);
+  }, []);
+
+  useEffect(() => {
+    const handler = (event) => {
+      if (event.button === key.buttonCode) {
+        stopHoldIntervalCounter();
+        setStateHistory((state) => state.enqueue(KeyState.Up));
+      }
+    };
+    //TODO customize event listener target
+    document.addEventListener(key.upEventListenerType, handler);
+    return () => document.removeEventListener(key.upEventListenerType, handler);
+  }, []);
+
+  return stateHistory;
+}
+
 const App = () => {
   const [shapes, setShapes] = useState([
     new Shape("id-1", 312, 326, false),
@@ -54,46 +111,14 @@ const App = () => {
     x: 0,
     y: 0
   });
-  const [mouseLeftStateHistory, setMouseLeftStateHistory] = useState(
-    MouseStateHistory.Initial
-  );
-  const mouseLeftHoldIntervalRef = React.useRef(null);
-  const [mouseRightStateHistory, setMouseRightStateHistory] = useState(
-    MouseStateHistory.Initial
-  );
-  const mouseRightHoldIntervalRef = React.useRef(null);
+
+  const mouseLeftStateHistory = keyState(Key.MouseLeft);
+  const mouseRightStateHistory = keyState(Key.MouseRight);
 
   const [canvasPanEnabled, setCanvasPanEnabled] = useState(false);
 
+  //TODO add automatic detection capability
   const [controlMode, setControlMode] = useState(ControlMode.Mouse);
-
-  const startMouseLeftHoldIntervalCounter = () => {
-    if (mouseLeftHoldIntervalRef.current) return;
-    mouseLeftHoldIntervalRef.current = setInterval(() => {
-      setMouseLeftStateHistory((state) => state.enqueue(MouseState.Hold));
-    }, 100);
-  };
-
-  const stopMouseLeftHoldIntervalCounter = () => {
-    if (mouseLeftHoldIntervalRef.current) {
-      clearInterval(mouseLeftHoldIntervalRef.current);
-      mouseLeftHoldIntervalRef.current = null;
-    }
-  };
-
-  const startMouseRightHoldIntervalCounter = () => {
-    if (mouseRightHoldIntervalRef.current) return;
-    mouseRightHoldIntervalRef.current = setInterval(() => {
-      setMouseRightStateHistory((state) => state.enqueue(MouseState.Hold));
-    }, 100);
-  };
-
-  const stopMouseRightHoldIntervalCounter = () => {
-    if (mouseRightHoldIntervalRef.current) {
-      clearInterval(mouseRightHoldIntervalRef.current);
-      mouseRightHoldIntervalRef.current = null;
-    }
-  };
 
   useEffect(() => {
     if (controlMode === ControlMode.Trackpad) {
@@ -117,39 +142,7 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    const handler = (event) => {
-      if (event.button === 0) {
-        setMouseLeftStateHistory((state) => state.enqueue(MouseState.Down));
-        startMouseLeftHoldIntervalCounter();
-      } else if (event.button === 2) {
-        setMouseRightStateHistory((state) => state.enqueue(MouseState.Down));
-        startMouseRightHoldIntervalCounter();
-      } else {
-        console.warn(`unhandled mouse down ${event.button}`);
-      }
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
-
-  useEffect(() => {
-    const handler = (event) => {
-      if (event.button === 0) {
-        stopMouseLeftHoldIntervalCounter();
-        setMouseLeftStateHistory((state) => state.enqueue(MouseState.Up));
-      } else if (event.button === 2) {
-        stopMouseRightHoldIntervalCounter();
-        setMouseRightStateHistory((state) => state.enqueue(MouseState.Up));
-      } else {
-        console.warn(`unhandled mouse up ${event.button}`);
-      }
-    };
-    document.addEventListener("mouseup", handler);
-    return () => document.removeEventListener("mouseup", handler);
-  }, []);
-
-  useEffect(() => {
-    setCanvasPanEnabled(mouseRightStateHistory.current === MouseState.Hold);
+    setCanvasPanEnabled(mouseRightStateHistory.current === KeyState.Hold);
   }, [mouseRightStateHistory]);
 
   useEffect(() => {

@@ -25,6 +25,15 @@ class MouseStateHistory {
   }
 }
 
+class ControlMode {
+  static Mouse = new ControlMode("mouse");
+  static Trackpad = new ControlMode("trackpad");
+
+  constructor(name) {
+    this.name = name;
+  }
+}
+
 const App = () => {
   const [boxCoordinates, setBoxCoordinates] = useState({
     x: 50,
@@ -45,6 +54,8 @@ const App = () => {
   const mouseRightHoldIntervalRef = React.useRef(null);
 
   const [canvasPanEnabled, setCanvasPanEnabled] = useState(false);
+
+  const [controlMode, setControlMode] = useState(ControlMode.Mouse);
 
   const startMouseLeftHoldIntervalCounter = () => {
     if (mouseLeftHoldIntervalRef.current) return;
@@ -75,15 +86,17 @@ const App = () => {
   };
 
   useEffect(() => {
-    const handler = (event) => {
-      setViewportCoordinates((state) => ({
-        x: state.x + event.deltaX,
-        y: state.y + event.deltaY
-      }));
-    };
-    document.addEventListener("wheel", handler);
-    return () => document.removeEventListener("wheel", handler);
-  }, []);
+    if (controlMode === ControlMode.Trackpad) {
+      const handler = (event) => {
+        setViewportCoordinates((state) => ({
+          x: state.x + event.deltaX,
+          y: state.y + event.deltaY
+        }));
+      };
+      document.addEventListener("wheel", handler);
+      return () => document.removeEventListener("wheel", handler);
+    }
+  }, [controlMode]);
 
   useEffect(() => {
     const handler = (event) => {
@@ -145,13 +158,40 @@ const App = () => {
 
   return (
     <>
-      <div style={{ position: "fixed", border: "1px solid black" }}>
+      <div
+        style={{
+          position: "fixed",
+          border: "1px solid black",
+          zIndex: 1,
+          backgroundColor: "white"
+        }}
+      >
         Viewport x:{viewportCoordinates.x} y:{viewportCoordinates.y}
         <br />
         Mouse left:{mouseLeftStateHistory.current.name} right:
         {mouseRightStateHistory.current.name}
         <br />
         Canvas pan enabled:{canvasPanEnabled ? "true" : "false"}
+        <br />
+        Control mode:
+        <div>
+          <input
+            type="radio"
+            value={ControlMode.Mouse.name}
+            name="control-mode"
+            checked={controlMode === ControlMode.Mouse}
+            onChange={() => setControlMode(ControlMode.Mouse)}
+          />{" "}
+          {ControlMode.Mouse.name}
+          <input
+            type="radio"
+            value={ControlMode.Trackpad.name}
+            name="control-mode"
+            checked={controlMode === ControlMode.Trackpad}
+            onChange={() => setControlMode(ControlMode.Trackpad)}
+          />{" "}
+          {ControlMode.Trackpad.name}
+        </div>
       </div>
       <Stage width={window.innerWidth - 10} height={window.innerHeight - 10}>
         <Layer>

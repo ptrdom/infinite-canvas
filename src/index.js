@@ -101,6 +101,8 @@ function keyState(key) {
 }
 
 const App = () => {
+  const shapeEdgeLength = 100;
+
   const [shapes, setShapes] = useState([
     new Shape("id-1", 312, 326, false),
     new Shape("id-2", 253, 123, false),
@@ -158,6 +160,18 @@ const App = () => {
     }
   }, [canvasPanEnabled]);
 
+  const handleFocusShape = (event) => {
+    const shape = shapes.find((shape) => shape.id === event.target.value);
+    if (!shape) {
+      throw new Error("Failed to find shape by id.");
+    } else {
+      setViewportCoordinates({
+        x: -shape.x - shapeEdgeLength / 2 + window.innerWidth / 2,
+        y: -shape.y - shapeEdgeLength / 2 + window.innerHeight / 2
+      });
+    }
+  };
+
   return (
     <>
       <div
@@ -194,6 +208,17 @@ const App = () => {
           />{" "}
           {ControlMode.Trackpad.name}
         </div>
+        Focus shape:
+        <select value="" onChange={handleFocusShape}>
+          <option value="" />
+          {shapes.map((shape) => {
+            return (
+              <option key={shape.id} value={shape.id}>
+                {shape.id}
+              </option>
+            );
+          })}
+        </select>
       </div>
       <Stage width={window.innerWidth - 10} height={window.innerHeight - 10}>
         <Layer>
@@ -226,14 +251,14 @@ const App = () => {
               }}
             >
               <Rect
-                width={100}
-                height={100}
+                width={shapeEdgeLength}
+                height={shapeEdgeLength}
                 fill={shape.dragging ? "black" : "green"}
               />
               <Text
                 x={8}
                 y={40}
-                text="Draggable Text"
+                text={shape.id}
                 fill={shape.dragging ? "green" : "black"}
               />
             </Group>

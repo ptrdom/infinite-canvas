@@ -1,6 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { render } from "react-dom";
-import { Stage, Layer, Text, Group, Rect } from "react-konva";
+import { Group, Layer, Rect, Stage, Text } from "react-konva";
+import Cookies from "universal-cookie";
+
+const cookies = new Cookies();
 
 class ControlMode {
   static Mouse = new ControlMode("mouse");
@@ -120,14 +123,29 @@ const App = () => {
   const [canvasPanEnabled, setCanvasPanEnabled] = useState(false);
 
   //TODO add automatic detection capability
-  const [controlMode, setControlMode] = useState(ControlMode.Mouse);
+  const [controlMode, setControlMode] = useState(() => {
+    const controlModeCookieValue = cookies.get("controlMode");
+    if (controlModeCookieValue) {
+      const controlMode =
+        ControlMode[
+          Object.keys(ControlMode).find(
+            (controlMode) =>
+              controlMode.toLowerCase() === controlModeCookieValue
+          )
+        ];
+      console.log(controlMode);
+      return controlMode;
+    } else {
+      return ControlMode.Mouse;
+    }
+  });
 
   useEffect(() => {
     if (controlMode === ControlMode.Trackpad) {
       const handler = (event) => {
         setViewportCoordinates((state) => ({
-          x: state.x + event.deltaX,
-          y: state.y + event.deltaY
+          x: state.x + -event.deltaX,
+          y: state.y + -event.deltaY
         }));
       };
       document.addEventListener("wheel", handler);
@@ -172,6 +190,11 @@ const App = () => {
     }
   };
 
+  const handleControlModeChange = (controlMode) => {
+    setControlMode(controlMode);
+    cookies.set("controlMode", controlMode.name);
+  };
+
   return (
     <>
       <div
@@ -196,7 +219,7 @@ const App = () => {
             value={ControlMode.Mouse.name}
             name="control-mode"
             checked={controlMode === ControlMode.Mouse}
-            onChange={() => setControlMode(ControlMode.Mouse)}
+            onChange={() => handleControlModeChange(ControlMode.Mouse)}
           />{" "}
           {ControlMode.Mouse.name}
           <input
@@ -204,7 +227,7 @@ const App = () => {
             value={ControlMode.Trackpad.name}
             name="control-mode"
             checked={controlMode === ControlMode.Trackpad}
-            onChange={() => setControlMode(ControlMode.Trackpad)}
+            onChange={() => handleControlModeChange(ControlMode.Trackpad)}
           />{" "}
           {ControlMode.Trackpad.name}
         </div>

@@ -106,10 +106,12 @@ function keyState(key) {
 const App = () => {
   const shapeEdgeLength = 100;
 
+  const [shapeId, setShapeId] = useState(4);
+
   const [shapes, setShapes] = useState([
-    new Shape("id-1", 312, 326, false),
-    new Shape("id-2", 253, 123, false),
-    new Shape("id-3", 121, 267, false)
+    new Shape(1, 312, 326, false),
+    new Shape(2, 253, 123, false),
+    new Shape(3, 121, 267, false)
   ]);
 
   const [viewportCoordinates, setViewportCoordinates] = useState({
@@ -179,7 +181,9 @@ const App = () => {
   }, [canvasPanEnabled]);
 
   const handleFocusShape = (event) => {
-    const shape = shapes.find((shape) => shape.id === event.target.value);
+    const shape = shapes.find(
+      (shape) => shape.id.toString() === event.target.value
+    );
     if (!shape) {
       throw new Error("Failed to find shape by id.");
     } else {
@@ -195,12 +199,24 @@ const App = () => {
     cookies.set("controlMode", controlMode.name);
   };
 
+  const handleAddRect = () => {
+    const shape = new Shape(
+      shapeId,
+      -viewportCoordinates.x + window.innerWidth / 2,
+      -viewportCoordinates.y + window.innerHeight / 2,
+      false
+    );
+    setShapeId((state) => state + 1);
+    setShapes((state) => [...state, shape]);
+  };
+
   return (
     <>
       <div
         style={{
-          position: "fixed",
+          position: "absolute",
           border: "1px solid black",
+          padding: "10px",
           zIndex: 1,
           backgroundColor: "white"
         }}
@@ -243,7 +259,19 @@ const App = () => {
           })}
         </select>
       </div>
-      <Stage width={window.innerWidth - 10} height={window.innerHeight - 10}>
+      <div
+        style={{
+          position: "absolute",
+          border: "1px solid black",
+          padding: "10px",
+          zIndex: 1,
+          top: "200px",
+          backgroundColor: "white"
+        }}
+      >
+        <button onClick={() => handleAddRect()}>Add Rect</button>
+      </div>
+      <Stage width={window.innerWidth - 20} height={window.innerHeight - 20}>
         <Layer>
           {shapes.map((shape) => (
             <Group

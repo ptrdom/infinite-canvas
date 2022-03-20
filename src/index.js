@@ -398,23 +398,56 @@ const App = () => {
               backgroundColor: "white"
             }}
           >
-            Shape
+            <span
+              style={{
+                textAlign: "right",
+                display: "inline-block",
+                width: "30px"
+              }}
+            >
+              ID:
+            </span>
+            {selectedShape.id}
             <br />
-            ID: {selectedShape.id}
-            <br />
-            Text:
+            <span
+              style={{
+                textAlign: "right",
+                display: "inline-block",
+                width: "30px"
+              }}
+            >
+              Text:
+            </span>
             <input
               type="text"
               onChange={onSelectedShapeTextChange}
               value={selectedShape.text || ""}
             />
-            X:
+            <br />
+            <span
+              style={{
+                textAlign: "right",
+                display: "inline-block",
+                width: "30px"
+              }}
+            >
+              X:
+            </span>
             <input
               type="number"
               onChange={onSelectedShapeXChange}
               value={selectedShape.x}
             />
-            Y:
+            <br />
+            <span
+              style={{
+                textAlign: "right",
+                display: "inline-block",
+                width: "30px"
+              }}
+            >
+              Y:
+            </span>
             <input
               type="number"
               onChange={onSelectedShapeYChange}

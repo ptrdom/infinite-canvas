@@ -13,10 +13,11 @@ class ControlMode {
 }
 
 class Shape {
-  constructor(id, x, y, dragging) {
+  constructor(id, x, y, text, dragging) {
     this.id = id;
     this.x = x;
     this.y = y;
+    this.text = text;
     this.dragging = dragging;
   }
 }
@@ -245,6 +246,7 @@ const App = () => {
       uuidv4(),
       -viewportCoordinates.x + window.innerWidth / 2,
       -viewportCoordinates.y + window.innerHeight / 2,
+      "",
       false
     );
     setShapes((state) => [...state, shape]);
@@ -253,6 +255,61 @@ const App = () => {
   useEffect(() => {
     localStorage.setItem("shapes", JSON.stringify(shapes));
   }, [shapes]);
+
+  const onSelectedShapeTextChange = (event) => {
+    const value = event.target.value;
+    setSelectedShape((state) => ({ ...state, text: value }));
+    setShapes((shapes) =>
+      shapes.map((el) =>
+        el.id === selectedShape.id
+          ? {
+              ...el,
+              text: value
+            }
+          : el
+      )
+    );
+  };
+
+  const onSelectedShapeXChange = (event) => {
+    let value;
+    if (isNaN(event.target.valueAsNumber)) {
+      value = 0;
+    } else {
+      value = event.target.valueAsNumber;
+    }
+    setSelectedShape((state) => ({ ...state, x: value }));
+    setShapes((shapes) =>
+      shapes.map((el) =>
+        el.id === selectedShape.id
+          ? {
+              ...el,
+              x: value
+            }
+          : el
+      )
+    );
+  };
+
+  const onSelectedShapeYChange = (event) => {
+    let value;
+    if (isNaN(event.target.valueAsNumber)) {
+      value = 0;
+    } else {
+      value = event.target.valueAsNumber;
+    }
+    setSelectedShape((state) => ({ ...state, y: value }));
+    setShapes((shapes) =>
+      shapes.map((el) =>
+        el.id === selectedShape.id
+          ? {
+              ...el,
+              y: value
+            }
+          : el
+      )
+    );
+  };
 
   return (
     <>
@@ -344,6 +401,25 @@ const App = () => {
             Shape
             <br />
             ID: {selectedShape.id}
+            <br />
+            Text:
+            <input
+              type="text"
+              onChange={onSelectedShapeTextChange}
+              value={selectedShape.text || ""}
+            />
+            X:
+            <input
+              type="number"
+              onChange={onSelectedShapeXChange}
+              value={selectedShape.x}
+            />
+            Y:
+            <input
+              type="number"
+              onChange={onSelectedShapeYChange}
+              value={selectedShape.y}
+            />
           </div>
         </>
       ) : null}
@@ -396,7 +472,7 @@ const App = () => {
               <Text
                 x={shapeEdgeLength / 4}
                 y={shapeEdgeLength / 6}
-                text={shape.id}
+                text={shape.text}
                 fill={shape.dragging ? "green" : "black"}
                 wrap="char"
                 width={shapeEdgeLength / 2}

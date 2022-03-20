@@ -1,7 +1,7 @@
 self.__precacheManifest = [
   {
-    "revision": "f4383e0a7dd89fd86d70",
-    "url": "/infinite-canvas/static/js/main.f4383e0a.chunk.js"
+    "revision": "0e51cffe6bec684929ef",
+    "url": "/infinite-canvas/static/js/main.0e51cffe.chunk.js"
   },
   {
     "revision": "889afb290ad9fd325e93",
@@ -12,7 +12,7 @@ self.__precacheManifest = [
     "url": "/infinite-canvas/static/js/runtime~main.5756f242.js"
   },
   {
-    "revision": "ed6adaa1c6f6930d646d2cf10a2b5d6c",
+    "revision": "fcea7170cf4a1aadcd8b8fd112014651",
     "url": "/infinite-canvas/index.html"
   }
 ];

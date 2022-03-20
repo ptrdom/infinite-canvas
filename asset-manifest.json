@@ -1,11 +1,11 @@
 {
-  "main.js": "/infinite-canvas/static/js/main.e18b42a9.chunk.js",
-  "main.js.map": "/infinite-canvas/static/js/main.e18b42a9.chunk.js.map",
-  "static/js/1.c164e473.chunk.js": "/infinite-canvas/static/js/1.c164e473.chunk.js",
-  "static/js/1.c164e473.chunk.js.map": "/infinite-canvas/static/js/1.c164e473.chunk.js.map",
+  "main.js": "/infinite-canvas/static/js/main.f4383e0a.chunk.js",
+  "main.js.map": "/infinite-canvas/static/js/main.f4383e0a.chunk.js.map",
+  "static/js/1.889afb29.chunk.js": "/infinite-canvas/static/js/1.889afb29.chunk.js",
+  "static/js/1.889afb29.chunk.js.map": "/infinite-canvas/static/js/1.889afb29.chunk.js.map",
   "runtime~main.js": "/infinite-canvas/static/js/runtime~main.5756f242.js",
   "runtime~main.js.map": "/infinite-canvas/static/js/runtime~main.5756f242.js.map",
   "index.html": "/infinite-canvas/index.html",
-  "precache-manifest.ea7cdb5bd7b6f8a559662d0e98336f1a.js": "/infinite-canvas/precache-manifest.ea7cdb5bd7b6f8a559662d0e98336f1a.js",
+  "precache-manifest.da76c1f8de2cee4cc02caa68c3e49840.js": "/infinite-canvas/precache-manifest.da76c1f8de2cee4cc02caa68c3e49840.js",
   "service-worker.js": "/infinite-canvas/service-worker.js"
 }

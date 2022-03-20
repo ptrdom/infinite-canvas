@@ -122,6 +122,8 @@ const App = () => {
     }
   });
 
+  const [selectedShape, setSelectedShape] = useState(null);
+
   const [viewportCoordinates, setViewportCoordinates] = useState(() => {
     try {
       const viewportCoordinatesJSON = localStorage.getItem(
@@ -147,7 +149,6 @@ const App = () => {
     }
   });
 
-  const mouseLeftStateHistory = keyState(Key.MouseLeft);
   const mouseRightStateHistory = keyState(Key.MouseRight);
 
   const [canvasPanEnabled, setCanvasPanEnabled] = useState(false);
@@ -264,13 +265,26 @@ const App = () => {
           backgroundColor: "white"
         }}
       >
+        DEBUG
+        <br />
         Viewport x:{viewportCoordinates.x} y:{viewportCoordinates.y}
         <br />
-        Mouse left:{mouseLeftStateHistory.current.name} right:
-        {mouseRightStateHistory.current.name}
+        Mouse right:{mouseRightStateHistory.current.name}
         <br />
         Canvas pan enabled:{canvasPanEnabled ? "true" : "false"}
         <br />
+        Selected shape: {selectedShape ? selectedShape.id : "null"}
+      </div>
+      <div
+        style={{
+          position: "absolute",
+          border: "1px solid black",
+          padding: "10px",
+          zIndex: 1,
+          right: "5px",
+          backgroundColor: "white"
+        }}
+      >
         Control mode:
         <div>
           <input
@@ -308,13 +322,40 @@ const App = () => {
           border: "1px solid black",
           padding: "10px",
           zIndex: 1,
-          top: "200px",
+          top: "50%",
           backgroundColor: "white"
         }}
       >
         <button onClick={() => handleAddRect()}>Add Rect</button>
       </div>
-      <Stage width={window.innerWidth - 20} height={window.innerHeight - 20}>
+      {selectedShape ? (
+        <>
+          <div
+            style={{
+              position: "absolute",
+              border: "1px solid black",
+              padding: "10px",
+              zIndex: 1,
+              top: "50%",
+              right: "5px",
+              backgroundColor: "white"
+            }}
+          >
+            Shape
+            <br />
+            ID: {selectedShape.id}
+          </div>
+        </>
+      ) : null}
+      <Stage
+        width={window.innerWidth - 20}
+        height={window.innerHeight - 20}
+        onClick={(event) => {
+          if (event.target === event.target.getStage()) {
+            setSelectedShape(null);
+          }
+        }}
+      >
         <Layer>
           {shapes.map((shape) => (
             <Group
@@ -342,6 +383,9 @@ const App = () => {
                       : el
                   )
                 );
+              }}
+              onClick={() => {
+                setSelectedShape(shape);
               }}
             >
               <Rect

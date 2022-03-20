@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { render } from "react-dom";
 import { Group, Layer, Rect, Stage, Text } from "react-konva";
-import Cookies from "universal-cookie";
-
-const cookies = new Cookies();
+import { v4 as uuidv4 } from "uuid";
 
 class ControlMode {
   static Mouse = new ControlMode("mouse");
@@ -106,17 +104,32 @@ function keyState(key) {
 const App = () => {
   const shapeEdgeLength = 100;
 
-  const [shapeId, setShapeId] = useState(4);
+  const [shapes, setShapes] = useState(() => {
+    try {
+      const shapes = JSON.parse(localStorage.getItem("shapes"));
+      return shapes.map((shape) => Object.assign(new Shape(), shape));
+    } catch (e) {
+      console.warn(
+        "Failed to get shapes from localStorage, falling back to default",
+        e
+      );
+      return [];
+    }
+  });
 
-  const [shapes, setShapes] = useState([
-    new Shape(1, 312, 326, false),
-    new Shape(2, 253, 123, false),
-    new Shape(3, 121, 267, false)
-  ]);
-
-  const [viewportCoordinates, setViewportCoordinates] = useState({
-    x: 0,
-    y: 0
+  const [viewportCoordinates, setViewportCoordinates] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("viewportCoordinates"));
+    } catch (e) {
+      console.warn(
+        "Failed to get viewportCoordinates from localStorage, falling back to default",
+        e
+      );
+      return {
+        x: 0,
+        y: 0
+      };
+    }
   });
 
   const mouseLeftStateHistory = keyState(Key.MouseLeft);
@@ -126,18 +139,23 @@ const App = () => {
 
   //TODO add automatic detection capability
   const [controlMode, setControlMode] = useState(() => {
-    const controlModeCookieValue = cookies.get("controlMode");
-    if (controlModeCookieValue) {
-      const controlMode =
-        ControlMode[
+    try {
+      const controlModeCookieValue = localStorage.getItem("controlMode");
+      if (controlModeCookieValue) {
+        return ControlMode[
           Object.keys(ControlMode).find(
             (controlMode) =>
               controlMode.toLowerCase() === controlModeCookieValue
           )
         ];
-      console.log(controlMode);
-      return controlMode;
-    } else {
+      } else {
+        return ControlMode.Mouse;
+      }
+    } catch (e) {
+      console.warn(
+        "Failed to get controlMode from localStorage, falling back to default",
+        e
+      );
       return ControlMode.Mouse;
     }
   });
@@ -194,21 +212,31 @@ const App = () => {
     }
   };
 
-  const handleControlModeChange = (controlMode) => {
-    setControlMode(controlMode);
-    cookies.set("controlMode", controlMode.name);
-  };
+  //TODO debounce
+  useEffect(() => {
+    localStorage.setItem(
+      "viewportCoordinates",
+      JSON.stringify(viewportCoordinates)
+    );
+  }, [viewportCoordinates]);
+
+  useEffect(() => {
+    localStorage.setItem("controlMode", controlMode.name);
+  }, [controlMode]);
 
   const handleAddRect = () => {
     const shape = new Shape(
-      shapeId,
+      uuidv4(),
       -viewportCoordinates.x + window.innerWidth / 2,
       -viewportCoordinates.y + window.innerHeight / 2,
       false
     );
-    setShapeId((state) => state + 1);
     setShapes((state) => [...state, shape]);
   };
+
+  useEffect(() => {
+    localStorage.setItem("shapes", JSON.stringify(shapes));
+  }, [shapes]);
 
   return (
     <>
@@ -235,7 +263,7 @@ const App = () => {
             value={ControlMode.Mouse.name}
             name="control-mode"
             checked={controlMode === ControlMode.Mouse}
-            onChange={() => handleControlModeChange(ControlMode.Mouse)}
+            onChange={() => setControlMode(ControlMode.Mouse)}
           />{" "}
           {ControlMode.Mouse.name}
           <input
@@ -243,7 +271,7 @@ const App = () => {
             value={ControlMode.Trackpad.name}
             name="control-mode"
             checked={controlMode === ControlMode.Trackpad}
-            onChange={() => handleControlModeChange(ControlMode.Trackpad)}
+            onChange={() => setControlMode(ControlMode.Trackpad)}
           />{" "}
           {ControlMode.Trackpad.name}
         </div>
@@ -307,10 +335,12 @@ const App = () => {
                 fill={shape.dragging ? "black" : "green"}
               />
               <Text
-                x={8}
-                y={40}
+                x={shapeEdgeLength / 4}
+                y={shapeEdgeLength / 6}
                 text={shape.id}
                 fill={shape.dragging ? "green" : "black"}
+                wrap="char"
+                width={shapeEdgeLength / 2}
               />
             </Group>
           ))}

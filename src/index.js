@@ -106,8 +106,13 @@ const App = () => {
 
   const [shapes, setShapes] = useState(() => {
     try {
-      const shapes = JSON.parse(localStorage.getItem("shapes"));
-      return shapes.map((shape) => Object.assign(new Shape(), shape));
+      const shapesJSON = localStorage.getItem("shapes");
+      if (shapesJSON) {
+        const shapes = JSON.parse(shapesJSON);
+        return shapes.map((shape) => Object.assign(new Shape(), shape));
+      } else {
+        return [];
+      }
     } catch (e) {
       console.warn(
         "Failed to get shapes from localStorage, falling back to default",
@@ -119,7 +124,17 @@ const App = () => {
 
   const [viewportCoordinates, setViewportCoordinates] = useState(() => {
     try {
-      return JSON.parse(localStorage.getItem("viewportCoordinates"));
+      const viewportCoordinatesJSON = localStorage.getItem(
+        "viewportCoordinates"
+      );
+      if (viewportCoordinatesJSON) {
+        return JSON.parse(viewportCoordinatesJSON);
+      } else {
+        return {
+          x: 0,
+          y: 0
+        };
+      }
     } catch (e) {
       console.warn(
         "Failed to get viewportCoordinates from localStorage, falling back to default",

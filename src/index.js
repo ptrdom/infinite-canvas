@@ -102,6 +102,16 @@ function keyState(key) {
   return stateHistory;
 }
 
+function label(id, text) {
+  let textTrimmed;
+  if (text.length > 30) {
+    textTrimmed = text.slice(0, 27) + "...";
+  } else {
+    textTrimmed = text;
+  }
+  return `[${textTrimmed}] (${id})`;
+}
+
 const App = () => {
   const shapeEdgeLength = 100;
 
@@ -330,7 +340,8 @@ const App = () => {
         <br />
         Canvas pan enabled:{canvasPanEnabled ? "true" : "false"}
         <br />
-        Selected shape: {selectedShape ? selectedShape.id : "null"}
+        Selected shape:{" "}
+        {selectedShape ? label(selectedShape.id, selectedShape.text) : "null"}
       </div>
       <div
         style={{
@@ -367,7 +378,7 @@ const App = () => {
           {shapes.map((shape) => {
             return (
               <option key={shape.id} value={shape.id}>
-                {shape.id}
+                {label(shape.id, shape.text)}
               </option>
             );
           })}

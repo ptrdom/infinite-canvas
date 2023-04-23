@@ -1,11 +1,10 @@
 {
-  "main.js": "/infinite-canvas/static/js/main.9a72b3ec.chunk.js",
-  "main.js.map": "/infinite-canvas/static/js/main.9a72b3ec.chunk.js.map",
-  "static/js/1.668056f8.chunk.js": "/infinite-canvas/static/js/1.668056f8.chunk.js",
-  "static/js/1.668056f8.chunk.js.map": "/infinite-canvas/static/js/1.668056f8.chunk.js.map",
-  "runtime~main.js": "/infinite-canvas/static/js/runtime~main.5756f242.js",
-  "runtime~main.js.map": "/infinite-canvas/static/js/runtime~main.5756f242.js.map",
-  "index.html": "/infinite-canvas/index.html",
-  "precache-manifest.3d325e1cfe19e474699640cb42173900.js": "/infinite-canvas/precache-manifest.3d325e1cfe19e474699640cb42173900.js",
-  "service-worker.js": "/infinite-canvas/service-worker.js"
+  "files": {
+    "main.js": "/infinite-canvas/static/js/main.24a66855.js",
+    "index.html": "/infinite-canvas/index.html",
+    "main.24a66855.js.map": "/infinite-canvas/static/js/main.24a66855.js.map"
+  },
+  "entrypoints": [
+    "static/js/main.24a66855.js"
+  ]
 }
